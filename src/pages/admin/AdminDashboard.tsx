@@ -20,21 +20,34 @@ import {
   Lock,
   Unlock,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Database,
+  Trash2,
+  RotateCcw,
+  AlertTriangle
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
   const {
     allUsers,
     currentUser,
+    emergencies,
+    missions,
+    resources,
+    shelters,
+    hospitals,
     updateUserRole,
     toggleUserVerification,
-    registerNewUser
+    registerNewUser,
+    clearAllIncidents,
+    restoreDefaultDatasets
   } = useAegisStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [dbActionStatus, setDbActionStatus] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // New user form state
   const [newName, setNewName] = useState('');
@@ -42,6 +55,28 @@ export const AdminDashboard: React.FC = () => {
   const [newRole, setNewRole] = useState<UserRole>('GOVERNMENT_OFFICER');
   const [newAgency, setNewAgency] = useState('NDRF Battalion 03');
   const [newDistrict, setNewDistrict] = useState('');
+
+  const handleClearIncidents = async () => {
+    if (!window.confirm('Are you sure you want to delete all active emergencies and rescue missions? Datasets (Hospitals, Shelters, Inventory, Users) will be safely kept.')) {
+      return;
+    }
+    setIsProcessing(true);
+    await clearAllIncidents();
+    setIsProcessing(false);
+    setDbActionStatus('All live emergency incidents and dispatch missions cleared! Datasets preserved.');
+    setTimeout(() => setDbActionStatus(null), 5000);
+  };
+
+  const handleRestoreDatasets = async () => {
+    if (!window.confirm('Reset database back to the default curated Odisha disaster dataset?')) {
+      return;
+    }
+    setIsProcessing(true);
+    await restoreDefaultDatasets();
+    setIsProcessing(false);
+    setDbActionStatus('Default datasets and initial disaster baseline restored.');
+    setTimeout(() => setDbActionStatus(null), 5000);
+  };
 
   const filteredUsers = allUsers.filter((u) => {
     const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
@@ -205,6 +240,81 @@ export const AdminDashboard: React.FC = () => {
           <p className="text-[10px] text-slate-600">Clearance Approved</p>
         </Card>
       </div>
+
+      {/* Database & Dataset Lifecycle Controls */}
+      <Card variant="glass" className="p-5 space-y-4 border-slate-200">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 pb-3">
+          <div>
+            <h3 className="text-sm font-bold font-mono text-white uppercase tracking-wider flex items-center">
+              <Database className="h-4 w-4 mr-2 text-cyan-400" /> Database & Dataset Lifecycle Controls
+            </h3>
+            <p className="text-xs text-slate-600 font-sans mt-0.5">
+              Clear dynamic disaster signals, purge test distress calls, or restore default regional datasets without dropping schemas.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-mono">
+            <span className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+              Active SOS: <strong className="text-rose-400">{emergencies.length}</strong>
+            </span>
+            <span className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+              Missions: <strong className="text-blue-400">{missions.length}</strong>
+            </span>
+            <span className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+              Shelters: <strong className="text-emerald-400">{shelters.length}</strong>
+            </span>
+            <span className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+              Hospitals: <strong className="text-amber-400">{hospitals.length}</strong>
+            </span>
+          </div>
+        </div>
+
+        {dbActionStatus && (
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-xs font-mono text-emerald-300 flex items-center space-x-2">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+            <span>{dbActionStatus}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 bg-white/40 border border-slate-200 rounded-xl space-y-2">
+            <div className="flex items-center space-x-2">
+              <Trash2 className="h-4 w-4 text-rose-400" />
+              <h4 className="text-xs font-bold font-mono text-slate-800 uppercase">Clear All Live Incidents (Keep Datasets)</h4>
+            </div>
+            <p className="text-xs text-slate-600">
+              Deletes all ongoing citizen distress calls, SOS signals, and active rescue missions. Resets warehouse stock allocations to 0 while keeping hospitals, shelters, inventory items, and accounts intact.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isProcessing}
+              onClick={handleClearIncidents}
+              className="text-xs text-rose-400 border-rose-500/40 hover:bg-rose-500/10 w-full sm:w-auto"
+            >
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Purge Live Incidents & Missions
+            </Button>
+          </div>
+
+          <div className="p-4 bg-white/40 border border-slate-200 rounded-xl space-y-2">
+            <div className="flex items-center space-x-2">
+              <RotateCcw className="h-4 w-4 text-cyan-400" />
+              <h4 className="text-xs font-bold font-mono text-slate-800 uppercase">Restore Default Demo Datasets</h4>
+            </div>
+            <p className="text-xs text-slate-600">
+              Resets and re-seeds the operational state with curated Odisha Mahanadi flood baseline datasets, NDRF squad locations, hospitals, and relief shelters.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isProcessing}
+              onClick={handleRestoreDatasets}
+              className="text-xs text-cyan-400 border-cyan-500/40 hover:bg-cyan-500/10 w-full sm:w-auto"
+            >
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Restore Default Disaster Datasets
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {/* Add Officer Form Drawer */}
       {showAddUserModal && (

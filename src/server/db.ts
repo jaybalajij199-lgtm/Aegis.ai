@@ -556,6 +556,33 @@ export const aegisDB = {
     }
   },
 
+  async clearIncidentsOnly() {
+    memoryStore.emergencies = [];
+    memoryStore.missions = [];
+    memoryStore.inventory = memoryStore.inventory.map(item => ({
+      ...item,
+      allocatedStock: 0,
+      remainingStock: item.totalStock,
+      activeAllocations: []
+    }));
+
+    if (isConnected) {
+      try {
+        await (Emergency as any).deleteMany({});
+        await (RescueMission as any).deleteMany({});
+        const items = await (InventoryItem as any).find({});
+        for (const item of items) {
+          item.allocatedStock = 0;
+          item.remainingStock = item.totalStock;
+          item.activeAllocations = [];
+          await item.save();
+        }
+      } catch (e) {
+        console.warn('Mongo clearIncidentsOnly error:', e);
+      }
+    }
+  },
+
   async wipeAll() {
     memoryStore.users = [];
     memoryStore.emergencies = [];

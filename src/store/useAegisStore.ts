@@ -516,11 +516,11 @@ export const fetchAllDatabaseState = async (force = false) => {
     }
     if (!data) return;
     const { emergencies, inventory, missions, shelters, hospitals } = data;
-    if (Array.isArray(emergencies) && emergencies.length > 0) globalState.emergencies = emergencies;
-    if (Array.isArray(inventory) && inventory.length > 0) globalState.resources = inventory;
-    if (Array.isArray(missions) && missions.length > 0) globalState.missions = missions;
-    if (Array.isArray(shelters) && shelters.length > 0) globalState.shelters = shelters;
-    if (Array.isArray(hospitals) && hospitals.length > 0) globalState.hospitals = hospitals;
+    if (Array.isArray(emergencies)) globalState.emergencies = emergencies;
+    if (Array.isArray(inventory)) globalState.resources = inventory;
+    if (Array.isArray(missions)) globalState.missions = missions;
+    if (Array.isArray(shelters)) globalState.shelters = shelters;
+    if (Array.isArray(hospitals)) globalState.hospitals = hospitals;
     isFetchedFromDB = true;
     notify();
 
@@ -1184,13 +1184,42 @@ export function useAegisStore() {
     notify();
   };
 
-  const resetAllData = () => {
+  const clearAllIncidents = async () => {
+    globalState.emergencies = [];
+    globalState.missions = [];
+    globalState.selectedEmergencyId = null;
+    globalState.resources = globalState.resources.map(item => ({
+      ...item,
+      allocatedStock: 0,
+      remainingStock: item.totalStock,
+      activeAllocations: []
+    }));
+    notify();
+    try {
+      await fetch('/api/admin/clear-incidents', { method: 'POST' });
+    } catch {
+      // offline fallback
+    }
+  };
+
+  const restoreDefaultDatasets = async () => {
     globalState.emergencies = INITIAL_EMERGENCIES;
     globalState.resources = INITIAL_RESOURCES;
     globalState.missions = INITIAL_MISSIONS;
+    globalState.shelters = INITIAL_SHELTERS;
+    globalState.hospitals = INITIAL_HOSPITALS;
     globalState.selectedEmergencyId = 'EMG-8902';
     globalState.demoStepIndex = 0;
     notify();
+    try {
+      await fetch('/api/admin/reset-default', { method: 'POST' });
+    } catch {
+      // offline fallback
+    }
+  };
+
+  const resetAllData = () => {
+    restoreDefaultDatasets();
   };
 
   return {
@@ -1222,6 +1251,8 @@ export function useAegisStore() {
     updateShelterOccupancy,
     updateHospitalBeds,
     triggerDemoScenarioNextStep,
+    clearAllIncidents,
+    restoreDefaultDatasets,
     resetAllData
   };
 }

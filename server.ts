@@ -11,8 +11,6 @@ dotenv.config();
 
 async function startServer() {
   await connectDB();
-  await autoSeed();
-  await autoSeedFull();
   
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -489,11 +487,27 @@ Based purely on this data, provide a structured tactical advisory in JSON format
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  // Database Seeding / Wipe (for initial load)
+  // Database Management
   app.post('/api/admin/seed', async (req, res) => {
     try {
       await aegisDB.seedAll(req.body);
       res.json({ success: true, message: 'Database seeded successfully' });
+    } catch (e: any) { res.status(500).json({ success: false, error: e.message }); }
+  });
+
+  app.post('/api/admin/clear-incidents', async (req, res) => {
+    try {
+      await aegisDB.clearIncidentsOnly();
+      notifyClients('UPDATE_SOS_SIGNAL', { id: 'all_cleared' });
+      res.json({ success: true, message: 'All live emergencies & rescue missions cleared successfully. Reference datasets preserved.' });
+    } catch (e: any) { res.status(500).json({ success: false, error: e.message }); }
+  });
+
+  app.post('/api/admin/reset-default', async (req, res) => {
+    try {
+      await autoSeed();
+      await autoSeedFull();
+      res.json({ success: true, message: 'Database reset to default operational state successfully.' });
     } catch (e: any) { res.status(500).json({ success: false, error: e.message }); }
   });
   

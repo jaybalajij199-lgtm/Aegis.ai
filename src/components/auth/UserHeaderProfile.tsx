@@ -127,68 +127,61 @@ export const UserHeaderProfile: React.FC = () => {
             )}
           </div>
 
-          {/* Persona Quick Switcher */}
-          <div className="space-y-1.5">
-            <p className="text-[10px] font-mono font-bold text-slate-600 uppercase tracking-wider px-1">
-              Switch Active Persona (RBAC)
-            </p>
-            <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
-              <button
-                onClick={() => handleRoleSwitch('CONTROL_ROOM')}
-                className={`p-2 rounded-lg border text-left transition-all ${
-                  currentUser.role === 'CONTROL_ROOM'
-                    ? 'bg-blue-50 border-blue-500 text-blue-800 font-bold'
-                    : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
-                }`}
-              >
-                Control Room
-              </button>
+          {/* Persona Quick Switcher - Available exclusively to Admin */}
+          {currentUser.role === 'ADMIN' && (
+            <div className="space-y-1.5 pt-1 border-t border-slate-200">
+              <div className="flex items-center justify-between px-1">
+                <p className="text-[10px] font-mono font-bold text-slate-600 uppercase tracking-wider">
+                  Admin Persona Switcher
+                </p>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">
+                  Admin Only
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
+                <button
+                  onClick={() => handleRoleSwitch('CONTROL_ROOM')}
+                  className="p-2 rounded-lg border text-left transition-all bg-slate-50 border-slate-200 text-slate-800 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-900"
+                >
+                  Control Room
+                </button>
 
-              <button
-                onClick={() => handleRoleSwitch('GOVERNMENT_OFFICER')}
-                className={`p-2 rounded-lg border text-left transition-all ${
-                  currentUser.role === 'GOVERNMENT_OFFICER'
-                    ? 'bg-amber-50 border-amber-500 text-amber-900 font-bold'
-                    : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
-                }`}
-              >
-                NDRF Officer
-              </button>
+                <button
+                  onClick={() => handleRoleSwitch('GOVERNMENT_OFFICER')}
+                  className="p-2 rounded-lg border text-left transition-all bg-slate-50 border-slate-200 text-slate-800 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-900"
+                >
+                  NDRF Officer
+                </button>
 
-              <button
-                onClick={() => handleRoleSwitch('CITIZEN')}
-                className={`p-2 rounded-lg border text-left transition-all ${
-                  currentUser.role === 'CITIZEN'
-                    ? 'bg-red-50 border-rose-500 text-rose-900 font-bold'
-                    : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
-                }`}
-              >
-                Citizen
-              </button>
+                <button
+                  onClick={() => handleRoleSwitch('CITIZEN')}
+                  className="p-2 rounded-lg border text-left transition-all bg-slate-50 border-slate-200 text-slate-800 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-900"
+                >
+                  Citizen
+                </button>
 
-              <button
-                onClick={() => handleRoleSwitch('ADMIN')}
-                className={`p-2 rounded-lg border text-left transition-all ${
-                  currentUser.role === 'ADMIN'
-                    ? 'bg-green-50 border-green-500 text-emerald-900 font-bold'
-                    : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
-                }`}
-              >
-                Sys Admin
-              </button>
+                <button
+                  onClick={() => handleRoleSwitch('ADMIN')}
+                  className="p-2 rounded-lg border text-left transition-all bg-green-50 border-green-500 text-emerald-900 font-bold"
+                >
+                  Sys Admin
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Management & Navigation Links */}
           <div className="pt-2 border-t border-slate-200 space-y-1 text-xs font-mono">
-            <Link
-              to="/admin"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-            >
-              <KeyRound className="h-3.5 w-3.5 text-green-600" />
-              <span>Admin Center & User RBAC</span>
-            </Link>
+            {currentUser.role === 'ADMIN' && (
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              >
+                <KeyRound className="h-3.5 w-3.5 text-green-600" />
+                <span>Admin Center & User RBAC</span>
+              </Link>
+            )}
 
             <Link
               to="/citizen/profile"

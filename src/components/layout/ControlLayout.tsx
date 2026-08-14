@@ -22,7 +22,7 @@ import { Button } from '../ui/Button';
 export const ControlLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser, emergencies, setUserRole } = useAegisStore();
+  const { currentUser, emergencies } = useAegisStore();
 
   const criticalCount = emergencies.filter((e) => e.priorityClassification === 'CRITICAL').length;
 

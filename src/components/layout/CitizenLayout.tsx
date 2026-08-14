@@ -9,7 +9,7 @@ import { UserHeaderProfile } from '../auth/UserHeaderProfile';
 export const CitizenLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser, setUserRole } = useAegisStore();
+  const { currentUser } = useAegisStore();
 
   const navItems = [
     { path: '/citizen', label: 'Home Dashboard', icon: Home },

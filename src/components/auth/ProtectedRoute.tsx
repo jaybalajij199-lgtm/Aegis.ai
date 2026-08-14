@@ -77,28 +77,30 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
             )}
           </div>
 
-          {/* Persona Quick Switching Helper for Hackathon / Testing */}
-          <div className="p-4 bg-blue-50/30 rounded-xl border border-blue-200 space-y-3 text-left">
-            <p className="text-xs font-bold text-blue-700 font-mono flex items-center">
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5 text-blue-600" /> Quick Role Switcher for Testing:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {allowedRoles.map((role) => (
-                <Button
-                  key={role}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setUserRole(role);
-                    navigate(getDefaultRouteForRole(role));
-                  }}
-                  className="text-[11px] py-1.5 font-mono text-blue-700 border-blue-500/40 hover:bg-blue-100/50"
-                >
-                  Switch to {role.replace('_', ' ')}
-                </Button>
-              ))}
+          {/* Persona Quick Switching Helper for Admin */}
+          {currentUser.role === 'ADMIN' && (
+            <div className="p-4 bg-blue-50/30 rounded-xl border border-blue-200 space-y-3 text-left">
+              <p className="text-xs font-bold text-blue-700 font-mono flex items-center">
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5 text-blue-600" /> Admin Role Switcher:
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {allowedRoles.map((role) => (
+                  <Button
+                    key={role}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setUserRole(role);
+                      navigate(getDefaultRouteForRole(role));
+                    }}
+                    className="text-[11px] py-1.5 font-mono text-blue-700 border-blue-500/40 hover:bg-blue-100/50"
+                  >
+                    Switch to {role.replace('_', ' ')}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button

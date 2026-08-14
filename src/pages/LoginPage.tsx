@@ -10,6 +10,8 @@ import {
   Users,
   Radio,
   ArrowRight,
+  ArrowLeft,
+  Home,
   KeyRound,
   Mail,
   Lock,
@@ -69,6 +71,24 @@ export const LoginPage: React.FC = () => {
       {/* Background Decorative Gradients */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-80 h-80 bg-rose-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Top Back to Landing Page Link */}
+      <div className="max-w-xl w-full mb-3 flex items-center justify-between z-10">
+        <Link
+          to="/"
+          className="inline-flex items-center text-xs font-mono font-medium text-slate-600 hover:text-blue-600 bg-white/80 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-1.5 transition-all shadow-xs group"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 mr-1.5 transition-transform group-hover:-translate-x-1 text-slate-500 group-hover:text-blue-600" />
+          <span>Back to Landing Page</span>
+        </Link>
+        <Link
+          to="/"
+          className="text-xs font-mono text-slate-500 hover:text-slate-800 flex items-center gap-1"
+        >
+          <Home className="h-3.5 w-3.5" />
+          <span>AEGIS Home</span>
+        </Link>
+      </div>
 
       <Card variant="glass" className="max-w-xl w-full p-6 sm:p-8 space-y-6 border-slate-200 bg-white shadow-xl relative z-10">
         <div className="text-center space-y-2">

@@ -31,15 +31,6 @@ export const LandingPage: React.FC = () => {
           </span>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-6 text-xs font-mono">
-          <Link to="/about" className="text-slate-600 hover:text-slate-900 transition-colors">
-            Architecture
-          </Link>
-          <Link to="/demo" className="text-slate-600 hover:text-slate-900 transition-colors">
-            Hackathon Simulation
-          </Link>
-        </nav>
-
         <div className="flex items-center space-x-3">
           <Button variant="ghost" size="sm" onClick={() => navigate('/login')} className="text-slate-700 hover:text-slate-900">
             Sign In
@@ -90,10 +81,11 @@ export const LandingPage: React.FC = () => {
           <Button
             variant="outline"
             size="lg"
-            onClick={() => navigate('/demo')}
-            className="w-full sm:w-auto px-8 py-3.5 text-sm font-bold border-slate-300 text-blue-700 hover:bg-blue-50 bg-white"
+            onClick={() => navigate('/officer')}
+            className="w-full sm:w-auto px-8 py-3.5 text-sm font-bold border-slate-300 text-slate-700 hover:bg-slate-50 bg-white"
           >
-            Run Interactive Scenario
+            <Users className="h-5 w-5 mr-2 text-slate-500" />
+            Field Officer Portal
           </Button>
         </div>
       </section>

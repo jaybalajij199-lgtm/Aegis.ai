@@ -1148,7 +1148,7 @@ export function useAegisStore() {
         hasFoodShortage: true,
         hasWaterShortage: true,
         roadAccessAvailable: false,
-        description: '[HACKATHON DEMO] Embankment breached in Tangi-Choudwar block! 1,500 villagers trapped on rooftops with rising flood waters. Medical team urgently required.',
+        description: '[URGENT SOS] Embankment breached in Tangi-Choudwar block! 1,500 villagers trapped on rooftops with rising flood waters. Medical team urgently required.',
         location: {
           lat: 20.582,
           lng: 85.961,

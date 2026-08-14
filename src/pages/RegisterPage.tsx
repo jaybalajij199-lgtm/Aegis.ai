@@ -15,6 +15,8 @@ import {
   MapPin,
   BadgeCheck,
   ArrowRight,
+  ArrowLeft,
+  Home,
   AlertCircle,
   CheckCircle2,
   Shield,
@@ -137,7 +139,25 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F7FB] text-slate-900 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative">
-      <Card variant="glass" className="max-w-2xl w-full p-6 sm:p-8 space-y-6 border-slate-200 bg-white shadow-xl my-8">
+      {/* Top Back to Landing Page Link */}
+      <div className="max-w-2xl w-full my-4 flex items-center justify-between z-10">
+        <Link
+          to="/"
+          className="inline-flex items-center text-xs font-mono font-medium text-slate-600 hover:text-blue-600 bg-white/80 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-1.5 transition-all shadow-xs group"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 mr-1.5 transition-transform group-hover:-translate-x-1 text-slate-500 group-hover:text-blue-600" />
+          <span>Back to Landing Page</span>
+        </Link>
+        <Link
+          to="/"
+          className="text-xs font-mono text-slate-500 hover:text-slate-800 flex items-center gap-1"
+        >
+          <Home className="h-3.5 w-3.5" />
+          <span>AEGIS Home</span>
+        </Link>
+      </div>
+
+      <Card variant="glass" className="max-w-2xl w-full p-6 sm:p-8 space-y-6 border-slate-200 bg-white shadow-xl mb-8">
         <div className="text-center space-y-2">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm mx-auto">
             <ShieldAlert className="h-7 w-7 text-white stroke-[2.5]" />

@@ -3,7 +3,7 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
-import { connectDB, User, Emergency, InventoryItem, RescueMission, ShelterInfo, HospitalInfo, RegionalTelemetry, TransitCorridor } from './src/server/db';
+import { connectDB, aegisDB, User, Emergency, InventoryItem, RescueMission, ShelterInfo, HospitalInfo, RegionalTelemetry, TransitCorridor } from './src/server/db';
 import { autoSeed, autoSeedFull } from './src/server/autoSeed';
 import { AegisAgent } from './Ai';
 
@@ -196,14 +196,14 @@ Return ONLY valid JSON matching this exact structure:
 
       const agent = new AegisAgent();
       
-      const allEmergencies = await (Emergency as any).find({});
+      const allEmergencies = await aegisDB.getEmergencies();
       const activeEmergencies = allEmergencies.filter((e: any) => e.status !== 'RESOLVED' && e.status !== 'COMPLETED');
       const completedEmergencies = allEmergencies.filter((e: any) => e.status === 'RESOLVED' || e.status === 'COMPLETED');
-      const inventory = await (InventoryItem as any).find({});
-      const hospitals = await (HospitalInfo as any).find({});
-      const shelters = await (ShelterInfo as any).find({});
-      const telemetry = await (RegionalTelemetry as any).find({});
-      const transit = await (TransitCorridor as any).find({});
+      const inventory = await aegisDB.getInventory();
+      const hospitals = await aegisDB.getHospitals();
+      const shelters = await aegisDB.getShelters();
+      const telemetry = await aegisDB.getTelemetry();
+      const transit = await aegisDB.getTransit();
 
       const agentResponse = await agent.interact('CONTROL_ROOM', userPrompt, {
         incidents: activeEmergencies,
@@ -345,13 +345,13 @@ Based purely on this data, provide a structured tactical advisory in JSON format
     }
   });
 
-  // --- MongoDB API Routes ---
+  // --- Data API Routes (Mongo + In-Memory Store) ---
 
   // Auth / Users
   app.post('/api/auth/login', async (req, res) => {
     try {
       const { email, password } = req.body;
-      const user = await (User as any).findOne({ email });
+      const user = await aegisDB.findUser({ email });
       
       if (!user) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -392,14 +392,8 @@ Based purely on this data, provide a structured tactical advisory in JSON format
   // Unified Sync Endpoint
   app.get('/api/sync', async (req, res) => {
     try {
-      const [emergencies, inventory, missions, shelters, hospitals] = await Promise.all([
-        (Emergency as any).find({}),
-        (InventoryItem as any).find({}),
-        (RescueMission as any).find({}),
-        (ShelterInfo as any).find({}),
-        (HospitalInfo as any).find({})
-      ]);
-      res.json({ emergencies, inventory, missions, shelters, hospitals });
+      const data = await aegisDB.syncAll();
+      res.json(data);
     } catch (e: any) { 
       res.status(500).json({ error: e.message }); 
     }
@@ -407,15 +401,14 @@ Based purely on this data, provide a structured tactical advisory in JSON format
 
   app.get('/api/emergencies', async (req, res) => {
     try {
-      const data = await (Emergency as any).find({});
+      const data = await aegisDB.getEmergencies();
       res.json(data);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
   
   app.post('/api/emergencies', async (req, res) => {
     try {
-      const doc = new Emergency(req.body);
-      await doc.save();
+      const doc = await aegisDB.createEmergency(req.body);
       notifyClients('NEW_SOS_SIGNAL', doc);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
@@ -423,7 +416,7 @@ Based purely on this data, provide a structured tactical advisory in JSON format
 
   app.put('/api/emergencies/:id', async (req, res) => {
     try {
-      const doc = await (Emergency as any).findOneAndUpdate({ id: req.params.id }, req.body, { new: true, upsert: true });
+      const doc = await aegisDB.updateEmergency(req.params.id, req.body);
       notifyClients('UPDATE_SOS_SIGNAL', doc);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
@@ -432,14 +425,14 @@ Based purely on this data, provide a structured tactical advisory in JSON format
   // Inventory
   app.get('/api/inventory', async (req, res) => {
     try {
-      const data = await (InventoryItem as any).find({});
+      const data = await aegisDB.getInventory();
       res.json(data);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
   app.put('/api/inventory/:id', async (req, res) => {
     try {
-      const doc = await (InventoryItem as any).findOneAndUpdate({ id: req.params.id }, req.body, { new: true, upsert: true });
+      const doc = await aegisDB.updateInventory(req.params.id, req.body);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
@@ -447,22 +440,21 @@ Based purely on this data, provide a structured tactical advisory in JSON format
   // Missions
   app.get('/api/missions', async (req, res) => {
     try {
-      const data = await (RescueMission as any).find({});
+      const data = await aegisDB.getMissions();
       res.json(data);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
   app.post('/api/missions', async (req, res) => {
     try {
-      const doc = new RescueMission(req.body);
-      await doc.save();
+      const doc = await aegisDB.createMission(req.body);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
   app.put('/api/missions/:id', async (req, res) => {
     try {
-      const doc = await (RescueMission as any).findOneAndUpdate({ id: req.params.id }, req.body, { new: true, upsert: true });
+      const doc = await aegisDB.updateMission(req.params.id, req.body);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
@@ -470,14 +462,14 @@ Based purely on this data, provide a structured tactical advisory in JSON format
   // Shelters
   app.get('/api/shelters', async (req, res) => {
     try {
-      const data = await (ShelterInfo as any).find({});
+      const data = await aegisDB.getShelters();
       res.json(data);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
   app.put('/api/shelters/:id', async (req, res) => {
     try {
-      const doc = await (ShelterInfo as any).findOneAndUpdate({ id: req.params.id }, req.body, { new: true, upsert: true });
+      const doc = await aegisDB.updateShelter(req.params.id, req.body);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
@@ -485,14 +477,14 @@ Based purely on this data, provide a structured tactical advisory in JSON format
   // Hospitals
   app.get('/api/hospitals', async (req, res) => {
     try {
-      const data = await (HospitalInfo as any).find({});
+      const data = await aegisDB.getHospitals();
       res.json(data);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
   app.put('/api/hospitals/:id', async (req, res) => {
     try {
-      const doc = await (HospitalInfo as any).findOneAndUpdate({ id: req.params.id }, req.body, { new: true, upsert: true });
+      const doc = await aegisDB.updateHospital(req.params.id, req.body);
       res.json(doc);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
@@ -500,37 +492,14 @@ Based purely on this data, provide a structured tactical advisory in JSON format
   // Database Seeding / Wipe (for initial load)
   app.post('/api/admin/seed', async (req, res) => {
     try {
-      const { users, emergencies, inventory, missions, shelters, hospitals } = req.body;
-      await (User as any).deleteMany({});
-      if (users?.length) await (User as any).insertMany(users);
-
-      await (Emergency as any).deleteMany({});
-      if (emergencies?.length) await (Emergency as any).insertMany(emergencies);
-
-      await (InventoryItem as any).deleteMany({});
-      if (inventory?.length) await (InventoryItem as any).insertMany(inventory);
-
-      await (RescueMission as any).deleteMany({});
-      if (missions?.length) await (RescueMission as any).insertMany(missions);
-
-      await (ShelterInfo as any).deleteMany({});
-      if (shelters?.length) await (ShelterInfo as any).insertMany(shelters);
-
-      await (HospitalInfo as any).deleteMany({});
-      if (hospitals?.length) await (HospitalInfo as any).insertMany(hospitals);
-
+      await aegisDB.seedAll(req.body);
       res.json({ success: true, message: 'Database seeded successfully' });
     } catch (e: any) { res.status(500).json({ success: false, error: e.message }); }
   });
   
   app.post('/api/admin/wipe', async (req, res) => {
     try {
-      await (User as any).deleteMany({});
-      await (Emergency as any).deleteMany({});
-      await (InventoryItem as any).deleteMany({});
-      await (RescueMission as any).deleteMany({});
-      await (ShelterInfo as any).deleteMany({});
-      await (HospitalInfo as any).deleteMany({});
+      await aegisDB.wipeAll();
       res.json({ success: true, message: 'Database wiped successfully' });
     } catch (e: any) { res.status(500).json({ success: false, error: e.message }); }
   });

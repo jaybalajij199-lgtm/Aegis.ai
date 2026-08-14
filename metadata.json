@@ -1,0 +1,11 @@
+{
+  "name": "Remix AEGIS AI - Emergency Command \u0026 Resource Allocation",
+  "description": "National-grade AI emergency operations platform with deterministic explainable triage scoring, real-time map heatmaps, and automated resource deployment matrix.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

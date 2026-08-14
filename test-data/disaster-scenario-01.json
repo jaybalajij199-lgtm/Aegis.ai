@@ -1,0 +1,73 @@
+{
+  "emergencies": [
+    {
+      "id": "EMG-001",
+      "disasterType": "FLOOD",
+      "description": "25 people trapped in a flooded building",
+      "peopleAffected": 25,
+      "injuredCount": 4,
+      "childrenCount": 7,
+      "seniorCount": 3,
+      "hasFoodShortage": true,
+      "hasWaterShortage": true,
+      "roadAccessAvailable": false,
+      "status": "PENDING"
+    },
+    {
+      "id": "EMG-002",
+      "disasterType": "FLOOD",
+      "description": "40 people evacuated to a school",
+      "peopleAffected": 40,
+      "injuredCount": 1,
+      "childrenCount": 5,
+      "seniorCount": 4,
+      "hasFoodShortage": false,
+      "hasWaterShortage": false,
+      "roadAccessAvailable": true,
+      "status": "TEAM_ASSIGNED"
+    }
+  ],
+  "resources": [
+    {
+      "id": "RES-001",
+      "name": "Rescue Boat",
+      "category": "RESCUE_EQUIPMENT",
+      "totalStock": 5,
+      "allocatedStock": 3,
+      "remainingStock": 2
+    },
+    {
+      "id": "RES-002",
+      "name": "Trauma Kit",
+      "category": "MEDICAL_SUPPLIES",
+      "totalStock": 20,
+      "allocatedStock": 8,
+      "remainingStock": 12
+    }
+  ],
+  "shelters": [
+    {
+      "id": "SHL-001",
+      "capacity": 500,
+      "currentOccupancy": 300,
+      "availableCapacity": 200,
+      "foodStockDays": 3,
+      "waterStockDays": 2,
+      "hasMedicalPost": true,
+      "status": "OPERATIONAL"
+    }
+  ],
+  "hospitals": [
+    {
+      "id": "HSP-001",
+      "totalBeds": 500,
+      "availableBeds": 60,
+      "icuBedsTotal": 50,
+      "icuBedsAvailable": 5,
+      "ambulancesAvailable": 4,
+      "traumaLevel": "Level 1 Trauma Center",
+      "hasOxygenPlant": true,
+      "status": "OPERATIONAL"
+    }
+  ]
+}

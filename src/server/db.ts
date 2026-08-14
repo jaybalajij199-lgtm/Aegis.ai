@@ -252,7 +252,9 @@ export const aegisDB = {
   async getUsers() {
     if (isConnected) {
       try {
-        return await (User as any).find({});
+        const docs = await (User as any).find({});
+        memoryStore.users = docs;
+        return docs;
       } catch (e) {
         console.warn('Mongo getUsers error, using memory:', e);
       }
@@ -295,7 +297,9 @@ export const aegisDB = {
   async getEmergencies() {
     if (isConnected) {
       try {
-        return await (Emergency as any).find({});
+        const docs = await (Emergency as any).find({});
+        memoryStore.emergencies = docs;
+        return docs;
       } catch (e) {
         console.warn('Mongo getEmergencies error, using memory:', e);
       }
@@ -305,16 +309,18 @@ export const aegisDB = {
 
   async createEmergency(data: any) {
     const item = { ...data, id: data.id || `EMG-${Date.now()}` };
-    memoryStore.emergencies = [item, ...memoryStore.emergencies.filter(e => e.id !== item.id)];
     if (isConnected) {
       try {
         const doc = new Emergency(item);
         await doc.save();
-        return doc;
+        const all = await (Emergency as any).find({});
+        memoryStore.emergencies = all;
+        return doc.toObject ? doc.toObject() : item;
       } catch (e) {
         console.warn('Mongo createEmergency error:', e);
       }
     }
+    memoryStore.emergencies = [item, ...memoryStore.emergencies.filter(e => e.id !== item.id)];
     return item;
   },
 
@@ -326,12 +332,14 @@ export const aegisDB = {
       updated = memoryStore.emergencies[idx];
     } else {
       updated = { ...update, id };
-      memoryStore.emergencies.unshift(updated);
     }
 
     if (isConnected) {
       try {
-        return await (Emergency as any).findOneAndUpdate({ id }, update, { new: true, upsert: true });
+        const doc = await (Emergency as any).findOneAndUpdate({ id }, { $set: update }, { new: true, upsert: false });
+        const all = await (Emergency as any).find({});
+        memoryStore.emergencies = all;
+        return doc || updated;
       } catch (e) {
         console.warn('Mongo updateEmergency error:', e);
       }
@@ -343,7 +351,9 @@ export const aegisDB = {
   async getInventory() {
     if (isConnected) {
       try {
-        return await (InventoryItem as any).find({});
+        const docs = await (InventoryItem as any).find({});
+        memoryStore.inventory = docs;
+        return docs;
       } catch (e) {
         console.warn('Mongo getInventory error, using memory:', e);
       }
@@ -359,12 +369,14 @@ export const aegisDB = {
       updated = memoryStore.inventory[idx];
     } else {
       updated = { ...update, id };
-      memoryStore.inventory.push(updated);
     }
 
     if (isConnected) {
       try {
-        return await (InventoryItem as any).findOneAndUpdate({ id }, update, { new: true, upsert: true });
+        const doc = await (InventoryItem as any).findOneAndUpdate({ id }, { $set: update }, { new: true, upsert: false });
+        const all = await (InventoryItem as any).find({});
+        memoryStore.inventory = all;
+        return doc || updated;
       } catch (e) {
         console.warn('Mongo updateInventory error:', e);
       }
@@ -376,7 +388,9 @@ export const aegisDB = {
   async getMissions() {
     if (isConnected) {
       try {
-        return await (RescueMission as any).find({});
+        const docs = await (RescueMission as any).find({});
+        memoryStore.missions = docs;
+        return docs;
       } catch (e) {
         console.warn('Mongo getMissions error, using memory:', e);
       }
@@ -386,16 +400,18 @@ export const aegisDB = {
 
   async createMission(data: any) {
     const item = { ...data, id: data.id || `MSN-${Date.now()}` };
-    memoryStore.missions = [item, ...memoryStore.missions.filter(m => m.id !== item.id)];
     if (isConnected) {
       try {
         const doc = new RescueMission(item);
         await doc.save();
-        return doc;
+        const all = await (RescueMission as any).find({});
+        memoryStore.missions = all;
+        return doc.toObject ? doc.toObject() : item;
       } catch (e) {
         console.warn('Mongo createMission error:', e);
       }
     }
+    memoryStore.missions = [item, ...memoryStore.missions.filter(m => m.id !== item.id)];
     return item;
   },
 
@@ -407,12 +423,14 @@ export const aegisDB = {
       updated = memoryStore.missions[idx];
     } else {
       updated = { ...update, id };
-      memoryStore.missions.unshift(updated);
     }
 
     if (isConnected) {
       try {
-        return await (RescueMission as any).findOneAndUpdate({ id }, update, { new: true, upsert: true });
+        const doc = await (RescueMission as any).findOneAndUpdate({ id }, { $set: update }, { new: true, upsert: false });
+        const all = await (RescueMission as any).find({});
+        memoryStore.missions = all;
+        return doc || updated;
       } catch (e) {
         console.warn('Mongo updateMission error:', e);
       }
@@ -424,7 +442,9 @@ export const aegisDB = {
   async getShelters() {
     if (isConnected) {
       try {
-        return await (ShelterInfo as any).find({});
+        const docs = await (ShelterInfo as any).find({});
+        memoryStore.shelters = docs;
+        return docs;
       } catch (e) {
         console.warn('Mongo getShelters error, using memory:', e);
       }
@@ -440,12 +460,14 @@ export const aegisDB = {
       updated = memoryStore.shelters[idx];
     } else {
       updated = { ...update, id };
-      memoryStore.shelters.push(updated);
     }
 
     if (isConnected) {
       try {
-        return await (ShelterInfo as any).findOneAndUpdate({ id }, update, { new: true, upsert: true });
+        const doc = await (ShelterInfo as any).findOneAndUpdate({ id }, { $set: update }, { new: true, upsert: false });
+        const all = await (ShelterInfo as any).find({});
+        memoryStore.shelters = all;
+        return doc || updated;
       } catch (e) {
         console.warn('Mongo updateShelter error:', e);
       }
@@ -457,7 +479,9 @@ export const aegisDB = {
   async getHospitals() {
     if (isConnected) {
       try {
-        return await (HospitalInfo as any).find({});
+        const docs = await (HospitalInfo as any).find({});
+        memoryStore.hospitals = docs;
+        return docs;
       } catch (e) {
         console.warn('Mongo getHospitals error, using memory:', e);
       }
@@ -473,12 +497,14 @@ export const aegisDB = {
       updated = memoryStore.hospitals[idx];
     } else {
       updated = { ...update, id };
-      memoryStore.hospitals.push(updated);
     }
 
     if (isConnected) {
       try {
-        return await (HospitalInfo as any).findOneAndUpdate({ id }, update, { new: true, upsert: true });
+        const doc = await (HospitalInfo as any).findOneAndUpdate({ id }, { $set: update }, { new: true, upsert: false });
+        const all = await (HospitalInfo as any).find({});
+        memoryStore.hospitals = all;
+        return doc || updated;
       } catch (e) {
         console.warn('Mongo updateHospital error:', e);
       }

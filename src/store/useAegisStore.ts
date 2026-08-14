@@ -489,11 +489,11 @@ let globalState = {
   users: getInitialUsers(),
   isAuthenticated: initialSession.isAuthenticated,
   currentUser: initialSession.currentUser,
-  emergencies: INITIAL_EMERGENCIES,
-  resources: INITIAL_RESOURCES,
-  missions: INITIAL_MISSIONS,
-  shelters: INITIAL_SHELTERS,
-  hospitals: INITIAL_HOSPITALS,
+  emergencies: [] as EmergencyRequest[],
+  resources: [] as InventoryItem[],
+  missions: [] as RescueMission[],
+  shelters: [] as ShelterInfo[],
+  hospitals: [] as HospitalInfo[],
   selectedEmergencyId: null as string | null,
   activeFilterDistrict: 'ALL',
   demoStepIndex: 0
@@ -535,10 +535,16 @@ export const fetchAllDatabaseState = async (force = false) => {
               globalState.emergencies = [parsed.data, ...globalState.emergencies.filter(e => e.id !== parsed.data.id)];
               notify();
             } else if (parsed.type === 'UPDATE_SOS_SIGNAL') {
-              globalState.emergencies = globalState.emergencies.map(e => 
-                e.id === parsed.data.id ? parsed.data : e
-              );
-              notify();
+              if (parsed.data?.id === 'all_cleared') {
+                globalState.emergencies = [];
+                globalState.missions = [];
+                notify();
+              } else {
+                globalState.emergencies = globalState.emergencies.map(e => 
+                  e.id === parsed.data.id ? parsed.data : e
+                );
+                notify();
+              }
             }
           } catch {
             // Ignored SSE format issue

@@ -15,10 +15,7 @@ import {
   MapPin,
   Radio,
   Activity,
-  Play,
-  RotateCcw,
-  Sparkles,
-  Zap
+  Sparkles
 } from 'lucide-react';
 
 export const ControlDashboard: React.FC = () => {
@@ -28,10 +25,7 @@ export const ControlDashboard: React.FC = () => {
     selectedEmergencyId,
     setSelectedEmergencyId,
     resources,
-    missions,
-    demoStepIndex,
-    triggerDemoScenarioNextStep,
-    resetAllData
+    missions
   } = useAegisStore();
 
   const selectedEmergency =
@@ -42,54 +36,6 @@ export const ControlDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Live Simulation Control Banner */}
-      <Card variant="glass" className="p-3.5 border-blue-200 bg-blue-50/80 shadow-sm">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-blue-600/10 text-blue-600 border border-blue-200 shrink-0">
-              <Zap className="h-5 w-5 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-bold font-mono text-blue-800 uppercase tracking-wide">
-                  AEGIS Live Tactical Simulation Engine
-                </span>
-                <span className="text-[10px] font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-300 font-bold">
-                  STEP {demoStepIndex + 1} / 4
-                </span>
-              </div>
-              <p className="text-xs text-slate-700 font-sans mt-0.5 font-medium">
-                {demoStepIndex === 0 && 'Base State: Ingestion stream active. Click "Trigger Incoming SOS Alert" to inject new flash flood.'}
-                {demoStepIndex === 1 && 'Flash Flood Alert Injected! Tangi-Choudwar SOS added with Score 98/100.'}
-                {demoStepIndex === 2 && 'AI Resource Package Allocated! 4,500 Water Packs & 6 Speedboats committed.'}
-                {demoStepIndex === 3 && 'NDRF Rescue Squad Dispatched! Mission team en-route to flood zone.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2 shrink-0">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={triggerDemoScenarioNextStep}
-              className="text-xs font-mono font-bold"
-            >
-              <Play className="h-3.5 w-3.5 mr-1" />
-              Simulate Next Step
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetAllData}
-              className="text-xs font-mono border-slate-200 hover:bg-slate-50 text-slate-700"
-            >
-              <RotateCcw className="h-3.5 w-3.5 mr-1" />
-              Reset
-            </Button>
-          </div>
-        </div>
-      </Card>
-
       {/* Overview Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card variant="glass" className="p-4 border-slate-200 bg-white">

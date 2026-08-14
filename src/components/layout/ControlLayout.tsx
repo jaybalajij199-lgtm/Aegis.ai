@@ -10,8 +10,6 @@ import {
   BarChart3,
   LogOut,
   Radio,
-  Play,
-  RotateCcw,
   Sparkles,
   ShieldCheck,
   Video,
@@ -24,7 +22,7 @@ import { Button } from '../ui/Button';
 export const ControlLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser, emergencies, demoStepIndex, triggerDemoScenarioNextStep, resetAllData, setUserRole } = useAegisStore();
+  const { currentUser, emergencies, setUserRole } = useAegisStore();
 
   const criticalCount = emergencies.filter((e) => e.priorityClassification === 'CRITICAL').length;
 
@@ -67,30 +65,8 @@ export const ControlLayout: React.FC<{ children?: React.ReactNode }> = ({ childr
           <span>Critical: <strong className="text-red-600">{criticalCount}</strong></span>
         </div>
 
-        {/* Right User & Demo Actions */}
+        {/* Right User Actions */}
         <div className="flex items-center space-x-2.5">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={triggerDemoScenarioNextStep}
-            className="text-xs h-8 border-blue-500/40 text-blue-700 hover:border-cyan-400 font-mono font-bold"
-          >
-            <Play className="h-3.5 w-3.5 mr-1 fill-current" />
-            SIMULATE SCENARIO ({demoStepIndex})
-          </Button>
-
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={resetAllData}
-            title="Reset simulation data"
-            className="text-xs h-8 text-slate-600 hover:bg-slate-50"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-          </Button>
-
-          <div className="h-6 w-[1px] bg-slate-50 hidden sm:block" />
-
           <UserHeaderProfile />
         </div>
       </header>

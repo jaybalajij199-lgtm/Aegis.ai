@@ -4,13 +4,14 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { connectDB, aegisDB, User, Emergency, InventoryItem, RescueMission, ShelterInfo, HospitalInfo, RegionalTelemetry, TransitCorridor } from './src/server/db';
-import { autoSeed, autoSeedFull } from './src/server/autoSeed';
+import { seedOnlyResources, autoSeed, autoSeedFull } from './src/server/autoSeed';
 import { AegisAgent } from './Ai';
 
 dotenv.config();
 
 async function startServer() {
   await connectDB();
+  await seedOnlyResources();
   
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;

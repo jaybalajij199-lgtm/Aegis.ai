@@ -1,4 +1,4 @@
-import { aegisDB, isMongoConnected, User, Emergency, InventoryItem, RescueMission, ShelterInfo, HospitalInfo, RegionalTelemetry, TransitCorridor } from './db';
+import { aegisDB, isMongoConnected, memoryStore, User, Emergency, InventoryItem, RescueMission, ShelterInfo, HospitalInfo, RegionalTelemetry, TransitCorridor } from './db';
 
 export const initialUsers = [
   {
@@ -486,67 +486,46 @@ export const initialTransit = [
   }
 ];
 
-export async function autoSeed() {
-  // Populate in-memory database first
-  await aegisDB.seedAll({
-    users: initialUsers,
-    emergencies: initialEmergencies,
-    inventory: initialInventory,
-    missions: initialMissions,
-    shelters: initialShelters,
-    hospitals: initialHospitals,
-  });
+export async function seedOnlyResources() {
+  // Populate in-memory database with ONLY inventory and baseline users for authentication
+  memoryStore.inventory = initialInventory;
+  memoryStore.emergencies = [];
+  memoryStore.missions = [];
+  memoryStore.shelters = [];
+  memoryStore.hospitals = [];
 
   // Seed MongoDB if connected
   if (isMongoConnected()) {
     try {
+      // 1. Clear non-resource operational collections (emergencies, missions, shelters, hospitals)
+      await (Emergency as any).deleteMany({});
+      await (RescueMission as any).deleteMany({});
+      await (ShelterInfo as any).deleteMany({});
+      await (HospitalInfo as any).deleteMany({});
+      await (RegionalTelemetry as any).deleteMany({});
+      await (TransitCorridor as any).deleteMany({});
+
+      // 2. Ensure initial users exist for login credentials
       const userCount = await (User as any).countDocuments();
       if (userCount === 0) {
-        console.log('[AEGIS DB] Seeding MongoDB users...');
+        console.log('[AEGIS DB] Seeding default authentication users...');
         await (User as any).insertMany(initialUsers);
       }
-      const emgCount = await (Emergency as any).countDocuments();
-      if (emgCount === 0) {
-        console.log('[AEGIS DB] Seeding MongoDB emergencies...');
-        await (Emergency as any).insertMany(initialEmergencies);
-      }
-      const msnCount = await (RescueMission as any).countDocuments();
-      if (msnCount === 0) {
-        console.log('[AEGIS DB] Seeding MongoDB rescue missions...');
-        await (RescueMission as any).insertMany(initialMissions);
-      }
+
+      // 3. Populate ONLY inventory resources
+      await (InventoryItem as any).deleteMany({});
+      await (InventoryItem as any).insertMany(initialInventory);
+      console.log(`[AEGIS DB] Successfully seeded ONLY ${initialInventory.length} resources into MongoDB.`);
     } catch (error) {
-      console.warn('[AEGIS DB] Auto-seed mongo error (non-fatal):', error);
+      console.warn('[AEGIS DB] Seed only resources error (non-fatal):', error);
     }
   }
 }
 
+export async function autoSeed() {
+  await seedOnlyResources();
+}
+
 export async function autoSeedFull() {
-  if (isMongoConnected()) {
-    try {
-      const hospCount = await (HospitalInfo as any).countDocuments();
-      if (hospCount === 0) {
-        await (HospitalInfo as any).insertMany(initialHospitals);
-      }
-      const shlCount = await (ShelterInfo as any).countDocuments();
-      if (shlCount === 0) {
-        await (ShelterInfo as any).insertMany(initialShelters);
-      }
-      const invCount = await (InventoryItem as any).countDocuments();
-      if (invCount === 0) {
-        await (InventoryItem as any).insertMany(initialInventory);
-      }
-      const telCount = await (RegionalTelemetry as any).countDocuments();
-      if (telCount === 0) {
-        await (RegionalTelemetry as any).insertMany(initialTelemetry);
-      }
-      const trCount = await (TransitCorridor as any).countDocuments();
-      if (trCount === 0) {
-        await (TransitCorridor as any).insertMany(initialTransit);
-      }
-      console.log('[AEGIS DB] Full database seeding completed successfully.');
-    } catch (error) {
-      console.warn('[AEGIS DB] Full auto-seed mongo error (non-fatal):', error);
-    }
-  }
+  await seedOnlyResources();
 }

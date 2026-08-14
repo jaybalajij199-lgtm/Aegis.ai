@@ -46,16 +46,31 @@ export const LoginPage: React.FC = () => {
       const res = await loginWithCredentials(email, password);
       setIsSubmitting(false);
 
-      if (res.success) {
-        if (fromRoute) {
-          navigate(fromRoute);
+      if (res.success && res.user) {
+        const userRole = res.user.role;
+        const defaultPortal = (
+          userRole === 'ADMIN' ? '/admin' :
+          userRole === 'CONTROL_ROOM' ? '/control' :
+          userRole === 'GOVERNMENT_OFFICER' ? '/officer' :
+          '/citizen'
+        );
+
+        // Check if fromRoute is valid for this specific user's role
+        if (fromRoute && fromRoute !== '/' && fromRoute !== '/login' && fromRoute !== '/register') {
+          const isAllowed = (
+            (userRole === 'ADMIN') ||
+            (userRole === 'CONTROL_ROOM' && fromRoute.startsWith('/control')) ||
+            (userRole === 'GOVERNMENT_OFFICER' && fromRoute.startsWith('/officer')) ||
+            (userRole === 'CITIZEN' && fromRoute.startsWith('/citizen'))
+          );
+
+          if (isAllowed) {
+            navigate(fromRoute);
+          } else {
+            navigate(defaultPortal);
+          }
         } else {
-          // Navigate based on role from the response
-          const role = res.user?.role;
-          if (role === 'CONTROL_ROOM') navigate('/control');
-          else if (role === 'GOVERNMENT_OFFICER') navigate('/officer');
-          else if (role === 'ADMIN') navigate('/admin');
-          else navigate('/citizen');
+          navigate(defaultPortal);
         }
       } else {
         setErrorMessage(res.message || 'Authentication failed.');
@@ -64,6 +79,12 @@ export const LoginPage: React.FC = () => {
       setIsSubmitting(false);
       setErrorMessage('Server connection error. Please try again later.');
     }
+  };
+
+  const handleSelectPreset = (presetEmail: string) => {
+    setEmail(presetEmail);
+    setPassword('password123');
+    setErrorMessage('');
   };
 
   return (
@@ -110,6 +131,66 @@ export const LoginPage: React.FC = () => {
               <span>{errorMessage}</span>
             </div>
           )}
+
+          {/* Quick Persona Fill */}
+          <div className="space-y-2 pb-1">
+            <p className="text-[11px] font-mono font-semibold text-slate-500 uppercase tracking-wider">
+              Select Preset Role Account:
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+              <button
+                type="button"
+                onClick={() => handleSelectPreset('ananya.s@gmail.com')}
+                className={`p-2 rounded-xl border text-center transition-all ${
+                  email === 'ananya.s@gmail.com'
+                    ? 'bg-rose-50 border-rose-400 text-rose-800 font-bold ring-1 ring-rose-400'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="font-bold text-[11px]">Citizen</div>
+                <div className="text-[10px] text-slate-500 truncate">ananya.s@...</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectPreset('field.officer@ndrf.gov.in')}
+                className={`p-2 rounded-xl border text-center transition-all ${
+                  email === 'field.officer@ndrf.gov.in'
+                    ? 'bg-amber-50 border-amber-400 text-amber-900 font-bold ring-1 ring-amber-400'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="font-bold text-[11px]">Field Officer</div>
+                <div className="text-[10px] text-slate-500 truncate">field.officer@...</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectPreset('control@aegis.gov.in')}
+                className={`p-2 rounded-xl border text-center transition-all ${
+                  email === 'control@aegis.gov.in'
+                    ? 'bg-blue-50 border-blue-400 text-blue-800 font-bold ring-1 ring-blue-400'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="font-bold text-[11px]">Control Room</div>
+                <div className="text-[10px] text-slate-500 truncate">control@...</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectPreset('admin@aegis.gov.in')}
+                className={`p-2 rounded-xl border text-center transition-all ${
+                  email === 'admin@aegis.gov.in'
+                    ? 'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold ring-1 ring-emerald-400'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="font-bold text-[11px]">Admin</div>
+                <div className="text-[10px] text-slate-500 truncate">admin@...</div>
+              </button>
+            </div>
+          </div>
 
           <div className="space-y-1">
             <label className="font-mono text-slate-700 font-bold block">Official Registered Email Address</label>

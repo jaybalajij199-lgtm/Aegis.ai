@@ -490,7 +490,7 @@ let globalState = {
   isAuthenticated: initialSession.isAuthenticated,
   currentUser: initialSession.currentUser,
   emergencies: [] as EmergencyRequest[],
-  resources: [] as InventoryItem[],
+  resources: INITIAL_RESOURCES,
   missions: [] as RescueMission[],
   shelters: [] as ShelterInfo[],
   hospitals: [] as HospitalInfo[],

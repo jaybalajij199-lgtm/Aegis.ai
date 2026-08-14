@@ -59,7 +59,7 @@ export function App() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'CONTROL_ROOM']}>
+            <ProtectedRoute allowedRoles={['ADMIN']}>
               <AdminLayout />
             </ProtectedRoute>
           }
@@ -88,11 +88,11 @@ export function App() {
           <Route path="testing" element={<ControlSystemVerificationPage />} />
         </Route>
 
-        {/* Citizen SOS & Reporting Portal (CITIZEN, GOVERNMENT_OFFICER, CONTROL_ROOM, ADMIN) */}
+        {/* Citizen SOS & Reporting Portal (CITIZEN, ADMIN) */}
         <Route
           path="/citizen"
           element={
-            <ProtectedRoute allowedRoles={['CITIZEN', 'GOVERNMENT_OFFICER', 'CONTROL_ROOM', 'ADMIN']}>
+            <ProtectedRoute allowedRoles={['CITIZEN', 'ADMIN']}>
               <CitizenLayout />
             </ProtectedRoute>
           }
@@ -107,11 +107,11 @@ export function App() {
           <Route path="profile" element={<CitizenProfile />} />
         </Route>
 
-        {/* Field Rescuer / Government Officer Portal (GOVERNMENT_OFFICER, CONTROL_ROOM, ADMIN) */}
+        {/* Field Rescuer / Government Officer Portal (GOVERNMENT_OFFICER, ADMIN) */}
         <Route
           path="/officer"
           element={
-            <ProtectedRoute allowedRoles={['GOVERNMENT_OFFICER', 'CONTROL_ROOM', 'ADMIN']}>
+            <ProtectedRoute allowedRoles={['GOVERNMENT_OFFICER', 'ADMIN']}>
               <OfficerLayout />
             </ProtectedRoute>
           }
